@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pasal/core/network/dio_client.dart';
 import 'package:pasal/core/network/shared_preferences_provider.dart';
+import 'package:pasal/domain/models/user.dart';
 import 'package:pasal/domain/repositories/auth_repository.dart';
 
 part 'auth_provider.freezed.dart';
@@ -9,7 +10,7 @@ part 'auth_provider.freezed.dart';
 @freezed
 class AuthState with _$AuthState {
   const factory AuthState.initial() = _Initial;
-  const factory AuthState.authenticated() = _Authenticated;
+  const factory AuthState.authenticated(User user) = _Authenticated;
   const factory AuthState.unauthenticated() = _Unauthenticated;
 }
 
@@ -17,7 +18,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepository;
   final Ref _ref;
 
-  AuthNotifier(this._authRepository, this._ref) : super(const AuthState.initial()) {
+  AuthNotifier(this._authRepository, this._ref)
+      : super(const AuthState.initial()) {
     checkAuthStatus();
   }
 
@@ -25,7 +27,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final token = _ref.read(sharedPreferencesProvider).getString('token');
     if (token != null) {
       _ref.read(dioProvider).options.headers['Authorization'] = 'Bearer $token';
-      state = const AuthState.authenticated();
+      try {
+        final user = await _authRepository.getMe();
+        state = AuthState.authenticated(user);
+      } catch (e) {
+        await signOut();
+      }
     } else {
       state = const AuthState.unauthenticated();
     }
@@ -59,7 +66,7 @@ class SignInNotifier extends StateNotifier<SignInState> {
     state = state.copyWith(isLoading: true, result: const AsyncValue.loading());
     try {
       await _authRepository.signIn(email, password);
-      _ref.read(authProvider.notifier).checkAuthStatus();
+      await _ref.read(authProvider.notifier).checkAuthStatus();
       state = state.copyWith(isLoading: false, result: const AsyncValue.data(null));
     } catch (e, st) {
       state = state.copyWith(isLoading: false, result: AsyncValue.error(e, st));

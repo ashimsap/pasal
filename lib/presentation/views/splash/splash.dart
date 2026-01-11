@@ -23,7 +23,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       if (!mounted) return;
       final authState = ref.read(authProvider);
       authState.whenOrNull(
-        authenticated: () => Navigator.of(context).pushReplacement(
+        authenticated: (_) => Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         ),
         unauthenticated: () => Navigator.of(context).pushReplacement(
@@ -40,7 +40,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (!mounted) return;
       next.whenOrNull(
-        authenticated: () => Navigator.of(context).pushReplacement(
+        authenticated: (_) => Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         ),
         unauthenticated: () => Navigator.of(context).pushReplacement(

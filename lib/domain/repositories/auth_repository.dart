@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/core/network/dio_client.dart';
 import 'package:pasal/core/network/shared_preferences_provider.dart';
+import 'package:pasal/domain/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepository {
@@ -41,9 +42,10 @@ class AuthRepository {
     _dio.options.headers.remove('Authorization');
   }
 
-  Future<void> getMe() async {
+  Future<User> getMe() async {
     try {
-      await _dio.get('/auth/me');
+      final response = await _dio.get('/auth/me');
+      return User.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to get user');
     }
