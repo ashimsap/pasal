@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/presentation/providers/auth_provider.dart';
 import 'package:pasal/presentation/views/auth/sign_in.dart';
-import 'package:pasal/presentation/views/home/home.dart';
+import 'package:pasal/presentation/views/main_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -19,12 +19,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
     // Wait for a few seconds for the animation, then navigate.
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 2), () {
       if (!mounted) return;
       final authState = ref.read(authProvider);
       authState.whenOrNull(
         authenticated: (_) => Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
         ),
         unauthenticated: () => Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const SignInScreen()),
@@ -41,7 +41,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       if (!mounted) return;
       next.whenOrNull(
         authenticated: (_) => Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
         ),
         unauthenticated: () => Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const SignInScreen()),
@@ -66,11 +66,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ),
               ],
               totalRepeatCount: 1,
-            ),
-            const SizedBox(height: 20),
-            const Icon(
-              Icons.store,
-              size: 50,
             ),
           ],
         ),
