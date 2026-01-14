@@ -24,25 +24,31 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      ref.read(signUpProvider.notifier).signUp(
+            _nameController.text,
+            _emailController.text,
+            _passwordController.text,
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final signUpState = ref.watch(signUpProvider);
 
-    ref.listen<SignUpState>(signUpProvider, (previous, next) {
-      next.result.when(
-        data: (_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Sign up successful! Please sign in.')),
-          );
-          Navigator.of(context).pop();
-        },
-        error: (error, stackTrace) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.toString())),
-          );
-        },
-        loading: () {},
-      );
+    ref.listen<AsyncValue<void>>(signUpProvider, (previous, next) {
+      if (!next.hasError && !next.isLoading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sign up successful! Please sign in.')),
+        );
+        Navigator.of(context).pop();
+      } else if (next.hasError && !next.isLoading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.error.toString())),
+        );
+      }
     });
 
     return AuthBackground(
@@ -59,19 +65,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
-            const Text(
-              'Create an account to explore thousands of products from trusted sellers.',
-              style: TextStyle(fontSize: 16, color: Colors.white70),
-              textAlign: TextAlign.center,
-            ),
             const SizedBox(height: 32),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Full Name',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Full Name'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your full name';
@@ -82,16 +79,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Email'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
-                }
-                if (!RegExp(r'^\S+@\S+\.\S+').hasMatch(value)) {
-                  return 'Please enter a valid email';
                 }
                 return null;
               },
@@ -100,10 +91,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             TextFormField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Password'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -116,20 +104,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: signUpState.isLoading
-                  ? null
-                  : () {
-                      if (_formKey.currentState!.validate()) {
-                        ref.read(signUpProvider.notifier).signUp(
-                              _nameController.text,
-                              _emailController.text,
-                              _passwordController.text,
-                            );
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
+              onPressed: signUpState.isLoading ? null : _submit,
               child: signUpState.isLoading
                   ? const CircularProgressIndicator()
                   : const Text('Sign Up'),
@@ -140,9 +115,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               children: [
                 const Text("Already have an account?"),
                 TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Sign In'),
                 ),
               ],

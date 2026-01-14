@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/presentation/providers/auth_provider.dart';
 import 'package:pasal/presentation/views/auth/forgot_password.dart';
 import 'package:pasal/presentation/views/auth/sign_up.dart';
-import 'package:pasal/presentation/views/home/home.dart';
+import 'package:pasal/presentation/views/main_screen.dart';
 import 'package:pasal/presentation/widgets/auth_background.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -25,24 +25,35 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     super.dispose();
   }
 
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      ref.read(signInProvider.notifier).signIn(
+            _emailController.text,
+            _passwordController.text,
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final signInState = ref.watch(signInProvider);
 
-    ref.listen<SignInState>(signInProvider, (previous, next) {
-      next.result.when(
-        data: (_) {
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      next.whenOrNull(
+        authenticated: (_) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const MainScreen()),
           );
         },
-        error: (error, stackTrace) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.toString())),
-          );
-        },
-        loading: () {},
       );
+    });
+
+    ref.listen<AsyncValue<void>>(signInProvider, (previous, next) {
+      if (next.hasError && !next.isLoading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.error.toString())),
+        );
+      }
     });
 
     return AuthBackground(
@@ -68,16 +79,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             const SizedBox(height: 32),
             TextFormField(
               controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Email'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
-                }
-                if (!RegExp(r'^\S+@\S+\.\S+').hasMatch(value)) {
-                  return 'Please enter a valid email';
                 }
                 return null;
               },
@@ -86,10 +91,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             TextFormField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Password'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -97,36 +99,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ForgotPasswordScreen(),
-                    ),
-                  );
-                },
-                child: const Text('Forgot Password?'),
-              ),
-            ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: signInState.isLoading
-                  ? null
-                  : () {
-                      if (_formKey.currentState!.validate()) {
-                        ref.read(signInProvider.notifier).signIn(
-                              _emailController.text,
-                              _passwordController.text,
-                            );
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
+              onPressed: signInState.isLoading ? null : _submit,
               child: signInState.isLoading
                   ? const CircularProgressIndicator()
                   : const Text('Sign In'),
@@ -140,9 +115,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const SignUpScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const SignUpScreen()),
                     );
                   },
                   child: const Text('Sign Up'),
