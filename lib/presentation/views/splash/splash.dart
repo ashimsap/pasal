@@ -18,25 +18,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Wait for a few seconds for the animation, then navigate.
-    Timer(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      final authState = ref.read(authProvider);
-      authState.whenOrNull(
-        authenticated: (_) => Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainScreen()),
-        ),
-        unauthenticated: () => Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const SignInScreen()),
-        ),
-      );
-    });
+    Timer(const Duration(seconds: 3), _checkAuthAndNavigate);
+  }
+
+  void _checkAuthAndNavigate() {
+    if (!mounted) return;
+    final authState = ref.read(authProvider);
+    authState.whenOrNull(
+      authenticated: (_) => Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      ),
+      unauthenticated: () => Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const SignInScreen()),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // This listener handles any auth state changes that might happen
-    // while the splash screen is still visible.
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (!mounted) return;
       next.whenOrNull(
@@ -49,24 +48,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       );
     });
 
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedTextKit(
-              animatedTexts: [
-                TypewriterAnimatedText(
-                  'Pasal',
-                  textStyle: const TextStyle(
-                    fontSize: 32.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  speed: const Duration(milliseconds: 200),
-                ),
-              ],
-              totalRepeatCount: 1,
-            ),
+            Text('Pasal', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+            SizedBox(height: 20),
+            Icon(Icons.store, size: 50),
           ],
         ),
       ),
