@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "730086342744",
+    "project_id": "pasal-deb4b",
+    "storage_bucket": "pasal-deb4b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730086342744:android:e7e48454b5b78342fd4a2d",
+        "android_client_info": {
+          "package_name": "com.example.pasal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAja9lLUq8ylIEbLkjWHeoY-vAeWW9Fows"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
