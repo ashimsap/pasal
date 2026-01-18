@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pasal/src/features/auth/application/providers.dart';
+import 'package:pasal/src/features/auth/presentation/widgets/blur_button.dart';
+import 'package:pasal/src/features/auth/presentation/widgets/glass_text_form_field.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -56,20 +59,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    const inputDecoration = InputDecoration(
-      filled: true,
-      fillColor: Colors.black38,
-      labelStyle: TextStyle(color: Colors.white70),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white54),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white, width: 2),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
-    );
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -110,10 +99,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         ),
                       ),
                       const SizedBox(height: 48),
-                      TextFormField(
+                      GlassTextFormField(
                         controller: _emailController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: inputDecoration.copyWith(labelText: 'Email'),
+                        labelText: 'Email',
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -126,20 +114,13 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         },
                       ),
                       const SizedBox(height: 32),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                           backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                        ),
+                      BlurButton(
                         onPressed: _isLoading ? null : _sendResetLink,
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Text('SEND RESET LINK'),
+                        isLoading: _isLoading,
+                        child: Text(
+                          'SEND RESET LINK',
+                           style: GoogleFonts.robotoMono(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
                       ),
                       const SizedBox(height: 24),
                       TextButton(
