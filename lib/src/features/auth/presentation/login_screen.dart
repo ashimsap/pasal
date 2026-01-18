@@ -5,6 +5,9 @@ import 'package:pasal/src/features/auth/application/providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pasal/src/features/auth/presentation/forgot_password_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pasal/src/features/auth/presentation/widgets/blur_button.dart';
+import 'package:pasal/src/features/auth/presentation/widgets/glass_text_form_field.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -18,8 +21,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String? _emailError;
-  String? _passwordError;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -28,11 +30,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _clearErrors() {
-    if (_emailError != null || _passwordError != null) {
+  void _clearError() {
+     if (_errorMessage != null) {
       setState(() {
-        _emailError = null;
-        _passwordError = null;
+        _errorMessage = null;
       });
     }
   }
@@ -42,7 +43,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() {
       _isLoading = true;
-      _clearErrors();
+      _clearError();
     });
 
     try {
@@ -51,13 +52,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _passwordController.text,
           );
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        setState(() => _emailError = 'No account found for this email.');
-      } else if (e.code == 'wrong-password') {
-        setState(() => _passwordError = 'Incorrect password.');
+      String errorMessage;
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        errorMessage = 'Invalid email or password.';
       } else {
-        setState(() => _emailError = 'An unexpected error occurred.');
+        errorMessage = 'An unexpected error occurred.';
       }
+      setState(() => _errorMessage = errorMessage);
     } finally {
       if (mounted) {
         setState(() {
@@ -70,12 +71,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _googleSignIn() async {
     setState(() {
       _isLoading = true;
+       _clearError();
     });
     try {
       await ref.read(authRepositoryProvider).signInWithGoogle();
     } catch (e) {
       setState(() {
-        _emailError = 'An unexpected error occurred. Please try again.';
+        _errorMessage = 'An unexpected error occurred. Please try again.';
       });
     } finally {
       if (mounted) {
@@ -89,28 +91,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-
-    const inputDecoration = InputDecoration(
-      filled: true,
-      fillColor: Colors.black38,
-      labelStyle: TextStyle(color: Colors.white70),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white54),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white, width: 2),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent, width: 2),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
-       focusedErrorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent, width: 2),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
-    );
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -152,14 +132,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 48),
-                      TextFormField(
+                      GlassTextFormField(
                         controller: _emailController,
-                        onChanged: (_) => _clearErrors(),
-                        style: const TextStyle(color: Colors.white),
-                        decoration: inputDecoration.copyWith(
-                          labelText: 'Email',
-                          errorText: _emailError,
-                        ),
+                        labelText: 'Email',
+                        onChanged: (_) => _clearError(),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -172,15 +148,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
+                      GlassTextFormField(
                         controller: _passwordController,
-                        onChanged: (_) => _clearErrors(),
-                        obscureText: true,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: inputDecoration.copyWith(
-                          labelText: 'Password',
-                          errorText: _passwordError,
-                        ),
+                        labelText: 'Password',
+                         onChanged: (_) => _clearError(),
+                        isPassword: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
@@ -188,6 +160,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           return null;
                         },
                       ),
+                       if (_errorMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          child: Text(
+                            _errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.redAccent, fontSize: 14),
+                          ),
+                        ),
                       const SizedBox(height: 8),
                       Align(
                         alignment: Alignment.centerRight,
@@ -201,20 +182,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                        ),
+                      BlurButton(
                         onPressed: _isLoading ? null : _login,
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Text('LOGIN'),
+                        isLoading: _isLoading,
+                        child: Text(
+                          'LOGIN',
+                          style: GoogleFonts.robotoMono(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
                       ),
                        const SizedBox(height: 24),
                       Row(
@@ -228,15 +202,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        icon: const FaIcon(FontAwesomeIcons.google, size: 18),
-                        label: const Text('Sign in with Google'),
+                      BlurButton(
                         onPressed: _isLoading ? null : _googleSignIn,
+                        isLoading: _isLoading,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const FaIcon(FontAwesomeIcons.google, size: 18, color: Colors.white),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Sign in with Google',
+                              style: GoogleFonts.robotoMono(color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
                        const SizedBox(height: 24),
                        Row(

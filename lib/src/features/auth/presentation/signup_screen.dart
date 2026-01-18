@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/src/features/auth/application/providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pasal/src/features/auth/presentation/widgets/blur_button.dart';
+import 'package:pasal/src/features/auth/presentation/widgets/glass_text_form_field.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -25,6 +28,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+    void _clearError() {
+     if (_errorMessage != null) {
+      setState(() {
+        _errorMessage = null;
+      });
+    }
   }
 
   Future<void> _signUp() async {
@@ -90,20 +101,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    const inputDecoration = InputDecoration(
-      filled: true,
-      fillColor: Colors.black38,
-      labelStyle: TextStyle(color: Colors.white70),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white54),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white, width: 2),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
-    );
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -144,11 +141,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(height: 48),
-                      TextFormField(
+                      GlassTextFormField(
                         controller: _nameController,
-                        onChanged: (_) => setState(() => _errorMessage = null),
-                        style: const TextStyle(color: Colors.white),
-                        decoration: inputDecoration.copyWith(labelText: 'Name'),
+                        labelText: 'Name',
+                        onChanged: (_) => _clearError(),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your name';
@@ -157,11 +153,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
+                      GlassTextFormField(
                         controller: _emailController,
-                        onChanged: (_) => setState(() => _errorMessage = null),
-                        style: const TextStyle(color: Colors.white),
-                        decoration: inputDecoration.copyWith(labelText: 'Email'),
+                        labelText: 'Email',
+                         onChanged: (_) => _clearError(),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -174,12 +169,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
+                      GlassTextFormField(
                         controller: _passwordController,
-                        onChanged: (_) => setState(() => _errorMessage = null),
-                        obscureText: true,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: inputDecoration.copyWith(labelText: 'Password'),
+                        labelText: 'Password',
+                        onChanged: (_) => _clearError(),
+                        isPassword: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
@@ -200,20 +194,40 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           ),
                         ),
                       const SizedBox(height: 32),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                        ),
+                       BlurButton(
                         onPressed: _isLoading ? null : _signUp,
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Text('SIGN UP'),
+                        isLoading: _isLoading,
+                        child: Text(
+                          'SIGN UP',
+                           style: GoogleFonts.robotoMono(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          const Expanded(child: Divider(thickness: 0.5, color: Colors.white70)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Text('OR', style: textTheme.bodySmall?.copyWith(color: Colors.white70)),
+                          ),
+                          const Expanded(child: Divider(thickness: 0.5, color: Colors.white70)),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                       BlurButton(
+                        onPressed: _isLoading ? null : _googleSignIn,
+                        isLoading: _isLoading,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const FaIcon(FontAwesomeIcons.google, size: 18, color: Colors.white),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Sign up with Google',
+                              style: GoogleFonts.robotoMono(color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 24),
                        Row(
