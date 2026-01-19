@@ -15,4 +15,10 @@ class AppColors {
   static const Color darkSurface = Color(0xFF1E1E1E); // Slightly lighter grey for cards
   static const Color darkOnPrimary = Color(0xFF121212);
   static const Color darkOnSurface = Color(0xFFE4E4E6); // Light grey for text
+
+  // Frosted Glass Colors
+  static final Color lightFrostedTint = Colors.white.withOpacity(0.2);
+  static final Color darkFrostedTint = Colors.black.withOpacity(0.3);
+  static final Color lightFrostedBorder = Colors.black.withOpacity(0.2);
+  static final Color darkFrostedBorder = Colors.white.withOpacity(0.3);
 }
