@@ -102,153 +102,142 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background.jpeg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(32.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(32.0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Create Account',
+                    textAlign: TextAlign.center,
+                    style: textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Let\'s get you started',
+                    textAlign: TextAlign.center,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                  GlassTextFormField(
+                    controller: _nameController,
+                    labelText: 'Name',
+                    onChanged: (_) => _clearError(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  GlassTextFormField(
+                    controller: _emailController,
+                    labelText: 'Email',
+                     onChanged: (_) => _clearError(),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  GlassTextFormField(
+                    controller: _passwordController,
+                    labelText: 'Password',
+                    onChanged: (_) => _clearError(),
+                    isPassword: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters long';
+                      }
+                      return null;
+                    },
+                  ),
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.redAccent, fontSize: 14),
+                      ),
+                    ),
+                  const SizedBox(height: 32),
+                   BlurButton(
+                    onPressed: _isLoading ? null : _signUp,
+                    isLoading: _isLoading,
+                    child: Text(
+                      'SIGN UP',
+                       style: GoogleFonts.robotoMono(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
                     children: [
-                      Text(
-                        'Create Account',
-                        textAlign: TextAlign.center,
-                        style: textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                      const Expanded(child: Divider(thickness: 0.5, color: Colors.white70)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: Text('OR', style: textTheme.bodySmall?.copyWith(color: Colors.white70)),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Let\'s get you started',
-                        textAlign: TextAlign.center,
-                        style: textTheme.titleMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.8),
+                      const Expanded(child: Divider(thickness: 0.5, color: Colors.white70)),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                   BlurButton(
+                    onPressed: _isLoading ? null : _googleSignIn,
+                    isLoading: _isLoading,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const FaIcon(FontAwesomeIcons.google, size: 18, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Sign up with Google',
+                          style: GoogleFonts.robotoMono(color: Colors.white),
                         ),
-                      ),
-                      const SizedBox(height: 48),
-                      GlassTextFormField(
-                        controller: _nameController,
-                        labelText: 'Name',
-                        onChanged: (_) => _clearError(),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Already have an account?", style: TextStyle(color: Colors.white70)),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
                         },
-                      ),
-                      const SizedBox(height: 16),
-                      GlassTextFormField(
-                        controller: _emailController,
-                        labelText: 'Email',
-                         onChanged: (_) => _clearError(),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      GlassTextFormField(
-                        controller: _passwordController,
-                        labelText: 'Password',
-                        onChanged: (_) => _clearError(),
-                        isPassword: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters long';
-                          }
-                          return null;
-                        },
-                      ),
-                      if (_errorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: Text(
-                            _errorMessage!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.redAccent, fontSize: 14),
-                          ),
-                        ),
-                      const SizedBox(height: 32),
-                       BlurButton(
-                        onPressed: _isLoading ? null : _signUp,
-                        isLoading: _isLoading,
-                        child: Text(
-                          'SIGN UP',
-                           style: GoogleFonts.robotoMono(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          const Expanded(child: Divider(thickness: 0.5, color: Colors.white70)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Text('OR', style: textTheme.bodySmall?.copyWith(color: Colors.white70)),
-                          ),
-                          const Expanded(child: Divider(thickness: 0.5, color: Colors.white70)),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                       BlurButton(
-                        onPressed: _isLoading ? null : _googleSignIn,
-                        isLoading: _isLoading,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const FaIcon(FontAwesomeIcons.google, size: 18, color: Colors.white),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Sign up with Google',
-                              style: GoogleFonts.robotoMono(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Already have an account?", style: TextStyle(color: Colors.white70)),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Sign In'),
-                          ),
-                        ],
+                        child: const Text('Sign In'),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
