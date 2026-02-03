@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pasal/firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:pasal/src/core/theme/accent_color_provider.dart';
 import 'package:pasal/src/core/theme/app_theme.dart';
 import 'package:pasal/src/core/theme/theme_provider.dart';
-import 'package:pasal/src/features/auth/presentation/login_screen.dart';
+import 'package:pasal/src/core/widgets/app_background.dart';
+import 'package:pasal/src/features/auth/application/providers.dart';
+import 'package:pasal/src/features/auth/presentation/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,13 +34,37 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeNotifierProvider);
+    final accentColor = ref.watch(accentColorProvider);
+    final authState = ref.watch(authStateChangesProvider);
 
     return MaterialApp(
-      theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.getTheme(accentColor ?? Colors.teal, Brightness.light),
+      darkTheme: AppTheme.getTheme(accentColor ?? Colors.teal, Brightness.dark),
       themeMode: themeMode,
-      home: const LoginScreen(),
+      home: const AuthWrapper(),
+      builder: (context, child) {
+        // Determine if we are on an authentication screen
+        final isAuthScreen = authState.when(
+          data: (user) => user == null,
+          loading: () => true, // Assume auth screen while loading
+          error: (_, __) => true, // Assume auth screen on error
+        );
+
+        final content = child ?? const SizedBox();
+
+        return AppBackground(
+          // The background blur should only be applied when the user is logged in
+          blur: !isAuthScreen,
+          // Conditionally wrap the auth screens with a fixed light theme
+          child: isAuthScreen
+              ? Theme(
+                  data: AppTheme.getTheme(accentColor ?? Colors.teal, Brightness.light),
+                  child: content,
+                )
+              : content,
+        );
+      },
     );
   }
 }
