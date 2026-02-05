@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/src/core/theme/app_colors.dart';
 import 'package:pasal/src/features/products/application/product_providers.dart';
-import 'package:pasal/src/features/products/data/product_model.dart';
 import 'package:pasal/src/features/products/presentation/product_card.dart';
 
 // 1. Enums and Providers for sorting
