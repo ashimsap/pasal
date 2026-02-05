@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pasal/src/features/products/application/product_providers.dart';
 import 'package:pasal/src/features/reviews/data/review_model.dart';
 
