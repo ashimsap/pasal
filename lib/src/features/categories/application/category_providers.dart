@@ -8,3 +8,4 @@ final categoriesStreamProvider = StreamProvider<List<Category>>((ref) {
     return snapshot.docs.map((doc) => Category.fromFirestore(doc)).toList();
   });
 });
+
