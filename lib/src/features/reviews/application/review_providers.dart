@@ -10,3 +10,4 @@ final reviewsStreamProvider = StreamProvider.autoDispose.family<List<Review>, St
     return snapshot.docs.map((doc) => Review.fromFirestore(doc)).toList();
   });
 });
+
