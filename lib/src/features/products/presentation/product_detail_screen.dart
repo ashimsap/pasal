@@ -243,7 +243,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       );
     }
 
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
