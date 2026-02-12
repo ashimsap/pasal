@@ -34,6 +34,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     final productsAsync = ref.watch(productsStreamProvider);
