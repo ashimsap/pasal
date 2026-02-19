@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/src/core/theme/app_colors.dart';
 import 'package:pasal/src/features/cart/application/cart_providers.dart';
 import 'package:pasal/src/features/cart/data/cart_item_model.dart';
+import 'package:pasal/src/features/checkout/presentation/checkout_screen.dart';
 import 'package:pasal/src/features/products/data/product_model.dart';
 import 'package:pasal/src/features/products/presentation/product_detail_screen.dart';
 import 'package:pasal/src/features/products/application/product_providers.dart'; // Needed to fetch product for detail screen
@@ -164,7 +165,7 @@ class CartScreen extends ConsumerWidget {
           ),
         ),
         _buildBottomBar(context, subtotal, selectedIds.isNotEmpty),
-      ],
+      ], 
     );
   }
   
@@ -252,7 +253,12 @@ class CartScreen extends ConsumerWidget {
                 ],
               ),
               ElevatedButton(
-                onPressed: isAnyItemSelected ? () { /* TODO: Navigate to checkout */ } : null,
+                onPressed: isAnyItemSelected ? () {
+                   Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CheckoutScreen()),
+                  );
+                } : null,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
