@@ -50,6 +50,19 @@ class ReviewCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              children: [
+                // Display user's image or a placeholder
+                CircleAvatar(
+                  radius: 15,
+                  backgroundImage: review.userImageUrl != null ? NetworkImage(review.userImageUrl!) : null,
+                  child: review.userImageUrl == null ? const Icon(Icons.person, size: 15) : null,
+                ),
+                const SizedBox(width: 8),
+                Text(review.userName, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              ],
+            ),
+             const SizedBox(height: 8),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(review.name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
