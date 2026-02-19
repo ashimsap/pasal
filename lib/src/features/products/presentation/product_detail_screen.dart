@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/src/core/theme/app_colors.dart';
 import 'package:pasal/src/features/cart/application/cart_providers.dart';
+import 'package:pasal/src/features/checkout/presentation/checkout_screen.dart';
 import 'package:pasal/src/features/products/data/product_model.dart';
 import 'package:pasal/src/features/reviews/presentation/reviews_section.dart';
 
@@ -253,7 +254,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             child: ElevatedButton.icon(
               icon: const Icon(Icons.shopping_bag_outlined),
               label: const Text('BUY NOW'),
-              onPressed: () { /* TODO: Implement Buy Now logic */ },
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CheckoutScreen()),
+                );
+              },
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
             ),
           ),
