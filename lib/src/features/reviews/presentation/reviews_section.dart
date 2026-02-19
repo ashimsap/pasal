@@ -5,9 +5,7 @@ import 'package:pasal/src/core/theme/app_colors.dart';
 import 'package:pasal/src/features/products/data/product_model.dart';
 import 'package:pasal/src/features/reviews/application/review_providers.dart';
 import 'package:pasal/src/features/reviews/data/review_model.dart';
-
-// 1. StateProvider to manage the expanded state of the reviews
-final reviewsExpandedProvider = StateProvider<bool>((ref) => false);
+import 'package:pasal/src/features/reviews/presentation/product_reviews_screen.dart';
 
 class ReviewsSection extends ConsumerWidget {
   final Product product;
@@ -15,37 +13,47 @@ class ReviewsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final reviewsAsync = ref.watch(reviewsStreamProvider(product.id));
-    final isExpanded = ref.watch(reviewsExpandedProvider);
+    // This provider will now ONLY fetch user-submitted reviews from Firestore.
+    final firestoreReviewsAsync = ref.watch(reviewsStreamProvider(product.id));
     final textTheme = Theme.of(context).textTheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        reviewsAsync.when(
-          data: (reviews) {
-            double averageRating = reviews.isNotEmpty
-                ? reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length
-                : 0.0;
-            return _buildFrostedCard(
-              context,
-              child: Column(
+        // --- HEADER SECTION --- 
+        // This section now uses the initial data from the product model 
+        // and adds the count of new reviews from Firestore.
+        _buildFrostedCard(
+          context,
+          child: firestoreReviewsAsync.when(
+            data: (firestoreReviews) {
+              // Combine the initial count with the new reviews count
+              final totalReviewCount = product.rating.count + firestoreReviews.length;
+              
+              // Recalculate the average rating
+              final totalRatingSum = (product.rating.rate * product.rating.count) + (firestoreReviews.isNotEmpty ? firestoreReviews.map((r) => r.rating).reduce((a, b) => a + b) : 0);
+              final averageRating = totalReviewCount > 0 ? totalRatingSum / totalReviewCount : 0.0;
+
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('Reviews (${reviews.length})', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                      // 2. "See All" / "See Less" button
-                      if (reviews.length > 1)
+                      Text('Reviews ($totalReviewCount)', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                      if (totalReviewCount > 1)
                         TextButton(
-                          onPressed: () => ref.read(reviewsExpandedProvider.notifier).state = !isExpanded,
-                          child: Text(isExpanded ? 'See Less' : 'See All'),
+                          onPressed: () {
+                             Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ProductReviewsScreen(productId: product.id),
+                            ));
+                          },
+                          child: const Text('See All'),
                         ),
                     ],
                   ),
-                  if (reviews.isNotEmpty) ...[
+                  if (totalReviewCount > 0) ...[
                     const SizedBox(height: 8),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -67,26 +75,25 @@ class ReviewsSection extends ConsumerWidget {
                     ),
                   ]
                 ],
-              ),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Text('Error loading reviews: $err'),
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()), // Show a loader while fetching firestore reviews
+            error: (err, stack) => Text('Error: $err'),
+          ),
         ),
         const SizedBox(height: 16),
-        // 3. Conditionally display reviews based on the expanded state
-        reviewsAsync.when(
+
+        // --- USER REVIEWS LIST --- 
+        // This section now ONLY shows reviews from Firestore.
+        firestoreReviewsAsync.when(
           data: (reviews) {
-            if (reviews.isEmpty) return const Center(child: Text('No reviews yet.'));
+            if (reviews.isEmpty) return const Center(child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text('Be the first to review this product!'),
+            ));
 
-            final reviewsToShow = isExpanded ? reviews : (reviews.isNotEmpty ? [reviews.first] : []);
-
-            return Column(
-              children: reviewsToShow.map((review) => Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: _buildReviewItem(context, review),
-              )).toList(),
-            );
+            // Always show the latest review first
+            return ReviewCard(review: reviews.first);
           },
           loading: () => const SizedBox.shrink(),
           error: (err, stack) => const SizedBox.shrink(),
@@ -113,34 +120,6 @@ class ReviewsSection extends ConsumerWidget {
           ),
           child: child,
         ),
-      ),
-    );
-  }
-
-  Widget _buildReviewItem(BuildContext context, Review review) {
-    return _buildFrostedCard(
-      context,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const CircleAvatar(child: Icon(Icons.person), radius: 15),
-              const SizedBox(width: 8),
-              Text(review.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: List.generate(5, (index) => Icon(Icons.star, color: index < review.rating ? Colors.amber : Colors.grey, size: 16)),
-          ),
-          const SizedBox(height: 8),
-          if (review.title.isNotEmpty) ...[
-            Text(review.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-          ],
-          Text(review.content),
-        ],
       ),
     );
   }
