@@ -1,6 +1,3 @@
-
-
-
 class Address {
   final String id;
   final String fullName;
