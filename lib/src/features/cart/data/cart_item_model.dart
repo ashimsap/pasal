@@ -1,38 +1,48 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CartItem {
   final String productId;
   final String productName;
-  final double price;
   final String imageUrl;
-  int quantity;
+  final double price;
+  final int quantity;
 
   CartItem({
     required this.productId,
     required this.productName,
-    required this.price,
     required this.imageUrl,
+    required this.price,
     required this.quantity,
   });
 
-  // fromJson factory to create a CartItem from a Firestore document
-  factory CartItem.fromJson(Map<String, dynamic> json) {
+    factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
-      productId: json['productId'] as String,
-      productName: json['productName'] as String,
-      price: (json['price'] as num).toDouble(),
-      imageUrl: json['imageUrl'] as String,
-      quantity: json['quantity'] as int,
+      productId: json['productId'] ?? '',
+      productName: json['productName'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      price: json['price']?.toDouble() ?? 0.0,
+      quantity: json['quantity']?.toInt() ?? 0,
     );
   }
 
-  // toJson method to convert a CartItem to a map for Firestore
+
   Map<String, dynamic> toJson() {
     return {
       'productId': productId,
       'productName': productName,
-      'price': price,
       'imageUrl': imageUrl,
+      'price': price,
       'quantity': quantity,
     };
+  }
+
+  CartItem copyWith({int? quantity}) {
+    return CartItem(
+      productId: productId,
+      productName: productName,
+      imageUrl: imageUrl,
+      price: price,
+      quantity: quantity ?? this.quantity,
+    );
   }
 }
