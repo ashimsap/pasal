@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pasal/src/core/widgets/frosted_card.dart';
 
 class PaymentMethodsScreen extends StatelessWidget {
-  const PaymentMethodsScreen({super.key});
+  final bool isSelectionMode;
+  const PaymentMethodsScreen({super.key, this.isSelectionMode = false});
 
   // Data for payment gateways
   static const List<Map<String, String>> _paymentGateways = [
@@ -24,7 +25,7 @@ class PaymentMethodsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payment Methods'),
+        title: Text(isSelectionMode ? 'Select Payment Method' : 'Payment Methods'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -40,7 +41,12 @@ class PaymentMethodsScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final gateway = _paymentGateways[index];
           return GestureDetector(
-            onTap: () { /* TODO: Implement linking logic */ },
+            onTap: () {
+              if (isSelectionMode) {
+                Navigator.of(context).pop(gateway['title']);
+              }
+              // TODO: Implement linking logic for non-selection mode
+            },
             child: FrostedCard(
               padding: const EdgeInsets.all(16.0),
               child: Column(
