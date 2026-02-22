@@ -70,4 +70,15 @@ class CartRepository {
     }
     return batch.commit();
   }
+
+  Future<void> clearCart() async {
+    if (_currentUser == null) throw Exception('User not logged in');
+
+    final WriteBatch batch = _firestore.batch();
+    final querySnapshot = await _cartRef.get();
+    for (final doc in querySnapshot.docs) {
+      batch.delete(doc.reference);
+    }
+    return batch.commit();
+  }
 }
