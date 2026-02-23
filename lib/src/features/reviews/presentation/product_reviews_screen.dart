@@ -9,6 +9,7 @@ class ProductReviewsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Correctly watch the provider with the productId
     final reviewsAsync = ref.watch(reviewsStreamProvider(productId));
 
     return Scaffold(
@@ -18,9 +19,10 @@ class ProductReviewsScreen extends ConsumerWidget {
       body: reviewsAsync.when(
         data: (reviews) {
           if (reviews.isEmpty) {
-            return const Center(child: Text('No reviews yet.'));
+            return const Center(child: Text('No reviews yet for this product.'));
           }
           return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             itemCount: reviews.length,
             itemBuilder: (context, index) {
               final review = reviews[index];
@@ -35,7 +37,7 @@ class ProductReviewsScreen extends ConsumerWidget {
   }
 }
 
-// A dedicated widget for a single review card
+// This card now correctly displays the fields from the Review model
 class ReviewCard extends StatelessWidget {
   final Review review;
   const ReviewCard({super.key, required this.review});
@@ -44,6 +46,8 @@ class ReviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -51,34 +55,25 @@ class ReviewCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Display user's image or a placeholder
-                CircleAvatar(
-                  radius: 15,
-                  backgroundImage: review.userImageUrl != null ? NetworkImage(review.userImageUrl!) : null,
-                  child: review.userImageUrl == null ? const Icon(Icons.person, size: 15) : null,
-                ),
+                // In a real app, you might fetch user data based on a userId on the review
+                const CircleAvatar(radius: 15, child: Icon(Icons.person, size: 15)),
                 const SizedBox(width: 8),
-                Text(review.userName, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-              ],
-            ),
-             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
                 Text(review.name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                Row(
-                  children: [
-                    Text(review.rating.toStringAsFixed(1), style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.star, color: Colors.amber, size: 20),
-                  ],
-                ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(review.title, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontStyle: FontStyle.italic)),
+            Row(
+              children: List.generate(5, (index) {
+                return Icon(Icons.star, color: index < review.rating ? Colors.amber : Colors.grey.shade300, size: 18);
+              }),
+            ),
             const SizedBox(height: 8),
-            Text(review.content),
+            if (review.title.isNotEmpty) ...[
+               Text(review.title, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+               const SizedBox(height: 4),
+            ],
+            if (review.content.isNotEmpty)
+              Text(review.content),
           ],
         ),
       ),
