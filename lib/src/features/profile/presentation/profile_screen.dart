@@ -88,10 +88,10 @@ class ProfileScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildStatItem(context, 'Wishlist', '12',
-                        () { /* TODO: Navigate to wishlist */ }),
+                        () {  }),
                     const VerticalDivider(thickness: 0.5),
                     _buildStatItem(context, 'Coupons', '5',
-                        () { /* TODO: Navigate to coupons */ }),
+                        () { }),
                   ],
                 ),
               ),
