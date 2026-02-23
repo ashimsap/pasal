@@ -8,7 +8,7 @@ class Product {
   final List<String> imageUrls;
   final String description;
   final String category;
-  final Rating rating;
+  final Rating rating; // This is the correct field
 
   const Product({
     required this.id,
@@ -17,18 +17,21 @@ class Product {
     required this.imageUrls,
     required this.description,
     required this.category,
-    required this.rating,
+    required this.rating, // Restored this field
   });
 
   factory Product.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     return Product(
       id: doc.id,
-      name: data['name'] ?? 'Unnamed Product',
+      // Checking for both 'name' and 'title' to be safe, as your data has both
+      name: data['name'] ?? data['title'] ?? 'Unnamed Product',
       price: (data['price'] as num?)?.toDouble() ?? 0.0,
-      imageUrls: List<String>.from(data['imageUrls'] ?? []),
-      description: data['description'] ?? 'No description available.',
+      // Checking for both 'imageUrls' and 'imgs' to be safe
+      imageUrls: List<String>.from(data['imageUrls'] ?? data['imgs'] ?? []),
+      description: data['description'] ?? data['specs']?.toString() ?? 'No description available.',
       category: data['category'] as String? ?? 'Uncategorized',
+      // This correctly parses the rating object from your data
       rating: data['rating'] != null ? Rating.fromJson(data['rating']) : Rating(rate: 0, count: 0),
     );
   }
