@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/src/core/theme/app_colors.dart';
 import 'package:pasal/src/features/cart/application/cart_providers.dart';
+import 'package:pasal/src/features/cart/data/cart_item_model.dart';
 import 'package:pasal/src/features/checkout/presentation/checkout_screen.dart';
 import 'package:pasal/src/features/products/data/product_model.dart';
 import 'package:pasal/src/features/reviews/presentation/reviews_section.dart';
@@ -255,10 +256,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               icon: const Icon(Icons.shopping_bag_outlined),
               label: const Text('BUY NOW'),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CheckoutScreen()),
-                );
+                  final singleItem = CartItem(
+                    productId: widget.product.id,
+                    productName: widget.product.name,
+                    price: widget.product.price,
+                    imageUrl: widget.product.imageUrls.isNotEmpty ? widget.product.imageUrls[0] : '',
+                    quantity: 1,
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CheckoutScreen(items: [singleItem]),
+                    ),
+                  );
               },
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
             ),
