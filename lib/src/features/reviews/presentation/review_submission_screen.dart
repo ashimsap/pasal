@@ -46,16 +46,14 @@ class _ReviewSubmissionScreenState extends ConsumerState<ReviewSubmissionScreen>
     try {
       final review = Review(
         id: '', // Firestore will generate this
-        productId: widget.order.items.first.productId,
-        userId: user.uid,
-        userName: user.displayName ?? 'Anonymous User', // Get user's name
-        userImageUrl: user.photoURL, // Get user's photo URL
+        name: user.displayName ?? 'Anonymous',
+        title: '', // This field is not captured in the form, so it's empty
+        content: _commentController.text,
         rating: _rating,
-        comment: _commentController.text,
-        timestamp: DateTime.now(),
       );
 
-      await ref.read(reviewRepositoryProvider).submitReview(review);
+      // Pass the productId to the repository
+      await ref.read(reviewRepositoryProvider).submitReview(widget.order.items.first.productId, review);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Review submitted successfully!')),
