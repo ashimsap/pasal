@@ -3,7 +3,9 @@
 A feature-rich e-commerce platform for Nepali users, built with Flutter and Firebase.
 
 <p align="center">
-  <img src="assets/ss/pasal1.jpg" width="300" alt="Pasal App Screenshot">
+  <img src="assets/ss/pasal1.jpg" width="260" alt="Pasal App Screenshot 1">
+  <img src="assets/ss/pasal2.jpg" width="260" alt="Pasal App Screenshot 2">
+  <img src="assets/ss/pasal3.jpg" width="260" alt="Pasal App Screenshot 3">
 </p>
 
 ## ✨ Key Features
