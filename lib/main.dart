@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,6 +10,7 @@ import 'package:pasal/src/core/theme/theme_provider.dart';
 import 'package:pasal/src/core/widgets/app_background.dart';
 import 'package:pasal/src/features/auth/application/providers.dart';
 import 'package:pasal/src/features/auth/presentation/auth_wrapper.dart';
+import 'package:pasal/src/features/notifications/application/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +22,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Set the background messaging handler
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   runApp(
     const ProviderScope(
@@ -36,6 +41,15 @@ class MyApp extends ConsumerWidget {
     final themeMode = ref.watch(themeNotifierProvider);
     final accentColor = ref.watch(accentColorProvider);
     final authState = ref.watch(authStateChangesProvider);
+
+    // Initialize notification service when user logs in
+    ref.listen<AsyncValue>(authStateChangesProvider, (_, state) {
+      state.whenData((user) {
+        if (user != null) {
+          ref.read(notificationServiceProvider).initNotifications();
+        }
+      });
+    });
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
