@@ -17,6 +17,14 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   final Ref _ref;
 
+  // Define the notification channel as a constant to be reused
+  static const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    description: 'This channel is used for important notifications.', // description
+    importance: Importance.max,
+  );
+
   NotificationService(this._ref);
 
   Future<void> initNotifications() async {
@@ -34,6 +42,7 @@ class NotificationService {
   }
 
   Future<void> _initLocalNotifications() async {
+    // Use the custom notification icon
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@drawable/ic_notification');
 
@@ -42,6 +51,11 @@ class NotificationService {
     );
 
     await _localNotifications.initialize(initializationSettings);
+
+    // Create the notification channel once on initialization
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
   }
 
   void _saveTokenToDatabase(String token) {
@@ -104,17 +118,6 @@ class NotificationService {
       }
     }
 
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'high_importance_channel',
-      'High Importance Notifications',
-      description: 'This channel is used for important notifications.',
-      importance: Importance.max,
-    );
-
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-
     _localNotifications.show(
       notification.hashCode,
       notification.title,
@@ -124,7 +127,6 @@ class NotificationService {
           channel.id,
           channel.name,
           channelDescription: channel.description,
-          // Use the new custom icon here as well
           icon: '@drawable/ic_notification',
           styleInformation: bigPictureStyleInformation,
         ),
@@ -136,5 +138,3 @@ class NotificationService {
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   return NotificationService(ref);
 });
-
-
