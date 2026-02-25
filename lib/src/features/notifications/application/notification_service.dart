@@ -136,3 +136,4 @@ class NotificationService {
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   return NotificationService(ref);
 });
+
