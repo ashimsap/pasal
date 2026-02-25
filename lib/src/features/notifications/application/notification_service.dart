@@ -34,7 +34,6 @@ class NotificationService {
   }
 
   Future<void> _initLocalNotifications() async {
-    // Use the new custom icon
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@drawable/ic_notification');
 
