@@ -5,7 +5,6 @@ import 'package:pasal/src/core/theme/app_colors.dart';
 import 'package:pasal/src/features/products/data/product_model.dart';
 import 'package:pasal/src/features/reviews/application/review_providers.dart';
 import 'package:pasal/src/features/reviews/presentation/product_reviews_screen.dart';
-import 'package:pasal/src/features/reviews/data/review_model.dart';
 
 class ReviewsSection extends ConsumerWidget {
   final Product product;
