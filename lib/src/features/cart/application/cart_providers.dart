@@ -17,7 +17,6 @@ final cartItemsProvider = StreamProvider<List<CartItem>>((ref) {
 
 // Manages the set of selected product IDs
 final selectedCartItemIdsProvider = StateProvider<Set<String>>((ref) => {});
-
 // NEW: Manages whether the cart is in selection mode
 final isCartInSelectionModeProvider = StateProvider<bool>((ref) => false);
 
@@ -41,3 +40,4 @@ final allCartItemsSelectedProvider = Provider<bool>((ref) {
   
   return cartItems.length == selectedIds.length;
 });
+
