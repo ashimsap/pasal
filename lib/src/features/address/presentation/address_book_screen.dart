@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pasal/src/core/theme/app_colors.dart';
 import 'package:pasal/src/core/widgets/frosted_card.dart';
 import 'package:pasal/src/features/address/application/address_providers.dart';
-import 'package:pasal/src/features/address/data/address_model.dart';
 import 'package:pasal/src/features/address/presentation/add_address_screen.dart';
 import 'package:pasal/src/features/address/presentation/edit_address_screen.dart';
 
